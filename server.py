@@ -7,6 +7,7 @@ from keras.applications.vgg16 import preprocess_input, decode_predictions
 from io import BytesIO
 from PIL import Image
 import numpy as np
+from numpy import linalg as LA
 import argparse, requests, json
 from flask import Flask, jsonify
 from flask import request, make_response, abort
@@ -36,13 +37,16 @@ def get_features(url):
   features = model.predict(x).flatten()
   return features.tolist()
 
+def cos_similarity(a_vect, b_vect):
+    return np.dot(a_vect, b_vect)/(LA.norm(a_vect, 2) * LA.norm(b_vect, 2))
+
 @app.route('/api/v1/search', methods=['POST'])
 def search():
     if not request.json or not 'url' in request.json:
         abort(400)
 
     features = get_features(request.json['url'])
-
+    np_features = np.asarray(features);
 
     acc = 0.2
     dim = 100
@@ -67,18 +71,22 @@ def search():
              dim = 1
 
     fields  = []
+    features_as_fields = []
     field_name = ''
     for i,f in enumerate(features):
          field_name = 'F'+str(i)
          fields.append({'range': {field_name: {'gte': f-offset, 'lte': f+offset} }})
+         features_as_fields.append({field_name: f})
     query = {'query': {'bool': {'minimum_number_should_match': dim,'should': fields}}}
  
     result = es.search(index='visimil',doc_type='image', body=query)
     results = []
     for hit in result['hits']['hits']:
-        results.append({'id': hit['_id'], 'score': hit['_score']})
+        hit_f = np.asarray([v.values()[0] for v in sorted([{attr: value} for attr, value in hit['_source'].iteritems()], key=lambda k: int(filter(lambda char: char.isdigit(), k.keys()[0])))])
+        cs = cos_similarity(features, hit_f)
+        results.append({'id': hit['_id'], 'score': hit['_score'], 'cs': cs})
 
-    return jsonify({'accuracy': acc, 'threshold': dim, 'count': result['hits']['total'], 'max_score': result['hits']['max_score'], 'results': results })
+    return jsonify({'accuracy': acc, 'threshold': dim, 'count': result['hits']['total'], 'max_score': result['hits']['max_score'], 'results': sorted(results, key=lambda k: k['cs'], reverse=True) })
 
 @app.route('/api/v1/add', methods=['POST'])
 def add_image():
