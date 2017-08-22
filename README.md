@@ -2,7 +2,7 @@
 
 Keras/Elasticsearch based visual similarity search (tested keras model using Tensorflow backend).
 
-Visimil uses Keras VGG16 model with Imagenet pre-trained weights. It use last conv layer feature vector values to compare visual similarity on images. There is one endpoint to add new computed image features into elasticsearch and one endopont to lookup for similar images.   
+Visimil uses Keras VGG16 model with Imagenet pre-trained weights. It use last conv layer feature vector values to compare visual similarity on images. There is one endpoint to add new computed image features into elasticsearch and another for image lookup.   
 
 ## Dependencies
 
