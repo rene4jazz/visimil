@@ -82,7 +82,7 @@ def search():
     result = es.search(index='visimil',doc_type='image', body=query)
     results = []
     for hit in result['hits']['hits']:
-        hit_f = np.asarray([v.values()[0] for v in sorted([{attr: value} for attr, value in hit['_source'].iteritems()], key=lambda k: int(filter(lambda char: char.isdigit(), k.keys()[0])))])
+        hit_f = np.asarray([v.values()[0] for v in sorted([{attr: value} for attr, value in hit['_source'].items()], key=lambda k: int(filter(lambda char: char.isdigit(), k.keys()[0])))])
         cs = cos_similarity(features, hit_f)
         results.append({'id': hit['_id'], 'score': hit['_score'], 'cs': cs})
 

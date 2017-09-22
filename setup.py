@@ -1,7 +1,8 @@
+#!/usr/bin/env python3
 import json
 
 from elasticsearch import Elasticsearch
-es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+es = Elasticsearch([{'host': '127.0.0.1', 'port': 9200}])
 
 flist = list(range(512))
 
