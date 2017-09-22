@@ -4,18 +4,14 @@ Keras/Elasticsearch based visual similarity search (tested keras model using Ten
 
 Visimil uses Keras VGG16 model with Imagenet pre-trained weights. It use last conv layer feature vector values to compare visual similarity on images. There is one endpoint to add new computed image features into elasticsearch and another for image lookup.   
 
-## Dependencies
+## Install Dependencies
+```bash
+python3 -m venv .venv
 
-python modules.
+source .venv/bin/activate
 
-* pillow
-* requests
-* numpy
-* tensorflow
-* keras
-* h5py
-* flask
-* elasticsearch
+pip install -r requirements.txt
+```
 
 # Setup
 We need to create Elasticsearch mappings first. Run visimil_setup.py in order to setup mappings.
