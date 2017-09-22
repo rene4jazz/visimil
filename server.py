@@ -1,4 +1,4 @@
-#!/usr/local/lib/python
+#!/usr/bin/env python3
 from __future__ import division
 from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image

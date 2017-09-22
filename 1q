@@ -1,0 +1,10 @@
+pillow
+requests
+numpy
+tensorflow
+keras
+h5py
+flask
+elasticsearch
+
+
