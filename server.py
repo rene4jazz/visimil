@@ -90,27 +90,36 @@ def search():
     result = es.search(index='visimil', doc_type='image', body=query)
     results = []
     for hit in result['hits']['hits']:
-        hit_f = \
-            np.asarray(
-                [v.values()[0] for v in sorted([{attr: value}
-                 for attr, value in hit['_source'].items()],
-                 key=lambda k: int(filter(
-                     lambda char: char.isdigit(), k.keys()[0])))])
-        cs = cos_similarity(features, hit_f)
-        results.append({'id': hit['_id'], 'score': hit['_score'], 'cs': cs})
+
+        # >>> dicts = [{'a':'a'},{'b':'b'}]
+        # >>> sorted(dicts, key=lambda x:sorted(x.keys()))
+        # [{'a': 'a'}, {'b': 'b'}]
+
+        print([list(v.values())[0] for v in sorted([{attr: value} for attr, value in hit['_source'].items()],key=lambda x:sorted(x.keys()))])
+
+        # Need to better spell out below so we can understand whats happening here
+        #hit_f = \
+        #    np.asarray(
+        #        [list(v.values())[0] for v in sorted([{attr: value}
+        #         for attr, value in hit['_source'].items()],
+        #         key=lambda k: int(filter(
+        #             lambda char: char.isdigit(), list(k.keys())[0])))])
+
+        #cs = cos_similarity(features, hit_f)
+        #results.append({'id': hit['_id'], 'score': hit['_score'], 'cs': cs})
 
     return jsonify(
         {'accuracy': acc,
          'threshold': dim,
          'count': result['hits']['total'],
          'max_score': result['hits']['max_score'],
-         'results': sorted(results, key=lambda k: k['cs'], reverse=True)})
+         'max_score': result['hits']['max_score']})
+         #'results': sorted(results, key=lambda k: k['cs'], reverse=True)})
 
 
 @app.route('/api/v1/add', methods=['POST'])
 def add_image():
-    if not request.json or 'url' \
-       not in request.json or 'id' not in request.json:
+    if not request.json or 'url' not in request.json or 'id' not in request.json:
         abort(400)
 
     features = get_features(request.json['url'])
