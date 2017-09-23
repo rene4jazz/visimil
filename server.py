@@ -28,7 +28,7 @@ def get_features(url):
     img = Image.open(BytesIO(response.content)).convert('RGB')
 
     target_size = (224, 224)
-    model = VGG16(weights='imagenet', include_top=False, pooling='max')
+    model = VGG16(weights='imagenet', include_top=False, pooling='avg')
 
     if img.size != target_size:
         img = img.resize(target_size)
