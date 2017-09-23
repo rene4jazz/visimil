@@ -91,12 +91,18 @@ def search():
     results = []
     for hit in result['hits']['hits']:
 
+        # https://stackoverflow.com/questions/22333388/dicts-are-not-orderable-in-python-3
         # >>> dicts = [{'a':'a'},{'b':'b'}]
         # >>> sorted(dicts, key=lambda x:sorted(x.keys()))
         # [{'a': 'a'}, {'b': 'b'}]
 
-        print([list(v.values())[0] for v in sorted([{attr: value} for attr, value in hit['_source'].items()],key=lambda x:sorted(x.keys()))])
-
+        # TODO: what needs to happen once we have my_list ?
+        # Apply this filter for isdigit() .... not sure I get this part ....
+        #         key=lambda k: int(filter(
+        #             lambda char: char.isdigit(), list(k.keys())[0])))])
+        my_list = [list(v.values())[0] for v in sorted([{attr: value} for attr, value in hit['_source'].items()],key=lambda x:sorted(x.keys()))]
+        for i in my_list:
+            print(i)
         # Need to better spell out below so we can understand whats happening here
         #hit_f = \
         #    np.asarray(
