@@ -106,7 +106,6 @@ def search():
          'threshold': dim,
          'count': result['hits']['total'],
          'max_score': result['hits']['max_score'],
-         'max_score': result['hits']['max_score'],
          'results': sorted(results, key=lambda k: k['cs'], reverse=True)})
 
 
