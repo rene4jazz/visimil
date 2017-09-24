@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
+export FLASK_APP=$SNAP/flask-app/application.py
+
+export PYTHONPATH=$SNAP/lib/python3.5/site-packages/
+
+
+
+[ -d $SNAP_COMMON/config ] && [ -e $SNAP_COMMON/config/flask_secrets ] && source $SNAP_COMMON/config/flask_secrets
+
+exec "$SNAP/flask-app/elasticsearch_init.py" "$@"
