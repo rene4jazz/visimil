@@ -28,7 +28,6 @@ parts:
     plugin: dump
     source: snap/
   nginx-wrap:
-    after: [wrappers]
     plugin: nginx
     source: .
     install: |

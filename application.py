@@ -4,6 +4,8 @@ from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
 
+import os
+
 from io import BytesIO
 from PIL import Image
 import numpy as np
@@ -19,7 +21,7 @@ if os.environ.get('ES_HOSTS'):
         [{'host': es_host, 'port': 9200}
          for es_host in os.environ.get('ES_HOSTS').split(",")]
 else:
-    ELASTICSEARCH_HOSTS = [{'host': '127.0.0.1', 'port': 9200}]
+    ELASTICSEARCH_HOSTS = None
 
 
 app = Flask(__name__)
@@ -131,6 +133,22 @@ def add_image():
         es.index(
             index='visimil', id=request.json['id'], doc_type='image', body=doc)
     return jsonify({'result': result})
+
+
+@app.route('/health_check', methods=['GET'])
+def elasticsearch_check():
+    app_health = \
+        {'app_health': {
+             'app_ok': False,
+             'reasons': {'elasticsearch_ok': False}}}
+
+    if not ELASTICSEARCH_HOSTS:
+        return jsonify(app_health)
+    else:
+        app_health = app_health['app_health']['app_ok'] = True
+        app_health = app_health['app_health']['reasons']['elasticsearch_ok'] = True
+        return jsonify(app_health)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
