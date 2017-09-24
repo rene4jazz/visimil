@@ -16,16 +16,16 @@ from flask import request, make_response, abort
 from elasticsearch import Elasticsearch
 
 
-if os.environ.get('ES_HOSTS'):
-    ELASTICSEARCH_HOSTS = \
-        [{'host': es_host, 'port': 9200}
-         for es_host in os.environ.get('ES_HOSTS').split(",")]
-else:
-    ELASTICSEARCH_HOSTS = None
+#if os.environ.get('ES_HOSTS'):
+#    ELASTICSEARCH_HOSTS = \
+#        [{'host': es_host, 'port': 9200}
+#         for es_host in os.environ.get('ES_HOSTS').split(",")]
+#else:
+#    ELASTICSEARCH_HOSTS = None
 
 
 app = Flask(__name__)
-es = Elasticsearch(ELASTICSEARCH_HOSTS)
+es = Elasticsearch([{'host': "127.0.0.1", 'port': 9200}])
 
 
 @app.errorhandler(404)
