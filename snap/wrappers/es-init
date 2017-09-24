@@ -13,4 +13,4 @@ export PYTHONPATH=$SNAP/lib/python3.5/site-packages/
 
 [ -d $SNAP_COMMON/config ] && [ -e $SNAP_COMMON/config/flask_secrets ] && source $SNAP_COMMON/config/flask_secrets
 
-exec "$SNAP/flask-app/elasticsearch_init.py" "$@"
+exec "$SNAP/usr/bin/python3" "$SNAP/flask-app/elasticsearch_init.py" "$@"

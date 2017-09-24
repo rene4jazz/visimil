@@ -142,6 +142,7 @@ def elasticsearch_check():
              'app_ok': False,
              'reasons': {'elasticsearch_ok': False}}}
 
+    ELASTICSEARCH_HOSTS = False
     if not ELASTICSEARCH_HOSTS:
         return jsonify(app_health)
     else:
