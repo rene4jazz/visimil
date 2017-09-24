@@ -1,16 +1,35 @@
 #!/usr/bin/env python3
 import json
+import os
+import sys
 
 from elasticsearch import Elasticsearch
-es = Elasticsearch([{'host': '127.0.0.1', 'port': 9200}])
 
-flist = list(range(512))
 
-fields = {}
+if __name__ == "__main__":
+    if os.environ.get('ES_HOSTS'):
+        ELASTICSEARCH_HOSTS = \
+            [{'host': es_host, 'port': 9200}
+             for es_host in os.environ.get('ES_HOSTS').split(",")]
+    else:
+        ELASTICSEARCH_HOSTS = None
 
-for f in flist:
-    fields["F" + str(f)] = {"type": "double"}
+    try:
+        if ELASTICSEARCH_HOSTS:
+            es = Elasticsearch(ELASTICSEARCH_HOSTS)
+        else:
+            raise Exception
+    except Exception as e:
+        print(e)
+        sys.exit(1)
 
-request_body = {'mappings': {'image': {'properties': fields}}}
+    flist = range(512)
+    fields = {}
 
-es.indices.create(index='visimil', body=request_body, ignore=400)
+    for f in flist:
+        fields["F" + str(f)] = {"type": "double"}
+
+    request_body = {'mappings': {'image': {'properties': fields}}}
+
+    print("Initializing elasticsearch")
+    es.indices.create(index='visimil', body=request_body, ignore=400)
