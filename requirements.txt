@@ -1,3 +1,4 @@
+elasticsearch>=5.0.0
 pip>=9.0.1
 pillow
 requests
@@ -6,4 +7,3 @@ tensorflow
 keras
 h5py
 flask
-elasticsearch>=5.0.0
