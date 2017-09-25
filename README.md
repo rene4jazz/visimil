@@ -48,6 +48,6 @@ HTTP POST to <hostname>/api/v1/search
 }
 ```
 ### Optional values
-Accuracy: offset values included as a hit for each dimension. (Values from  ``` 0 > x <=200 ```)
+Accuracy: offset values included as a hit for each dimension. (Values from  ``` 0.0 > x <=2000.0 ```)
 Threshold: minimun number of dimiension that need to match to score in result. (Values from 1 to 512)
 
