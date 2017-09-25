@@ -4,6 +4,8 @@ from keras.applications.vgg16 import VGG16
 from keras.preprocessing import image
 from keras.applications.vgg16 import preprocess_input
 
+import os
+
 from io import BytesIO
 from PIL import Image
 import numpy as np
@@ -13,9 +15,17 @@ from flask import Flask, jsonify
 from flask import request, make_response, abort
 from elasticsearch import Elasticsearch
 
-app = Flask(__name__)
 
-es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+#if os.environ.get('ES_HOSTS'):
+#    ELASTICSEARCH_HOSTS = \
+#        [{'host': es_host, 'port': 9200}
+#         for es_host in os.environ.get('ES_HOSTS').split(",")]
+#else:
+#    ELASTICSEARCH_HOSTS = None
+
+
+app = Flask(__name__)
+es = Elasticsearch([{'host': "127.0.0.1", 'port': 9200}])
 
 
 @app.errorhandler(404)
@@ -88,14 +98,16 @@ def search():
                  'should': fields}}}
 
     result = es.search(index='visimil', doc_type='image', body=query)
+
     results = []
     for hit in result['hits']['hits']:
+
         hit_f = \
             np.asarray(
-                [v.values()[0] for v in sorted([{attr: value}
-                 for attr, value in hit['_source'].items()],
-                 key=lambda k: int(filter(
-                     lambda char: char.isdigit(), k.keys()[0])))])
+                [list(v.values())[0] for v in sorted(
+                    [{attr: value} for attr, value in hit['_source'].items()],
+                key=lambda x:sorted(x.keys()))])
+
         cs = cos_similarity(features, hit_f)
         results.append({'id': hit['_id'], 'score': hit['_score'], 'cs': cs})
 
@@ -109,8 +121,7 @@ def search():
 
 @app.route('/api/v1/add', methods=['POST'])
 def add_image():
-    if not request.json or 'url' \
-       not in request.json or 'id' not in request.json:
+    if not request.json or 'url' not in request.json or 'id' not in request.json:
         abort(400)
 
     features = get_features(request.json['url'])
@@ -122,6 +133,23 @@ def add_image():
         es.index(
             index='visimil', id=request.json['id'], doc_type='image', body=doc)
     return jsonify({'result': result})
+
+
+@app.route('/health_check', methods=['GET'])
+def elasticsearch_check():
+    app_health = \
+        {'app_health': {
+             'app_ok': False,
+             'reasons': {'elasticsearch_ok': False}}}
+
+    ELASTICSEARCH_HOSTS = False
+    if not ELASTICSEARCH_HOSTS:
+        return jsonify(app_health)
+    else:
+        app_health = app_health['app_health']['app_ok'] = True
+        app_health = app_health['app_health']['reasons']['elasticsearch_ok'] = True
+        return jsonify(app_health)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
