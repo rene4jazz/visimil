@@ -129,20 +129,9 @@ def add_image():
     return jsonify({'result': result})
 
 
-@app.route('/health_check', methods=['GET'])
+@app.route('/ping', methods=['GET'])
 def elasticsearch_check():
-    app_health = \
-        {'app_health': {
-             'app_ok': False,
-             'reasons': {'elasticsearch_ok': False}}}
-
-    ELASTICSEARCH_HOSTS = False
-    if not ELASTICSEARCH_HOSTS:
-        return jsonify(app_health)
-    else:
-        app_health = app_health['app_health']['app_ok'] = True
-        app_health = app_health['app_health']['reasons']['elasticsearch_ok'] = True
-        return jsonify(app_health)
+    return jsonify({'ping': "PONG"})
 
 
 if __name__ == '__main__':
