@@ -11,13 +11,11 @@ from visimil.config import ELASTICSEARCH_HOSTS
 if __name__ == "__main__":
     es = Elasticsearch(ELASTICSEARCH_HOSTS)
 
-    flist = range(512)
-    fields = {}
-
-    for f in flist:
-        fields["F" + str(f)] = {"type": "double"}
-
-    request_body = {'mappings': {'image': {'properties': fields}}}
+    request_body = \
+        {'mappings':
+            {'image':
+                {'properties':
+                    {"F" + str(f): {"type": "double"} for f in range(512)}}}}
 
     print("Initializing elasticsearch")
     es.indices.create(index='visimil', body=request_body, ignore=400)
