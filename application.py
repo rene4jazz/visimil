@@ -15,17 +15,11 @@ from flask import Flask, jsonify
 from flask import request, make_response, abort
 from elasticsearch import Elasticsearch
 
-
-#if os.environ.get('ES_HOSTS'):
-#    ELASTICSEARCH_HOSTS = \
-#        [{'host': es_host, 'port': 9200}
-#         for es_host in os.environ.get('ES_HOSTS').split(",")]
-#else:
-#    ELASTICSEARCH_HOSTS = None
+from visimil.config import ELASTICSEARCH_HOSTS
 
 
 app = Flask(__name__)
-es = Elasticsearch([{'host': "127.0.0.1", 'port': 9200}])
+es = Elasticsearch(ELASTICSEARCH_HOSTS)
 
 
 @app.errorhandler(404)
