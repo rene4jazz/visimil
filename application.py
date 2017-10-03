@@ -15,17 +15,11 @@ from flask import Flask, jsonify
 from flask import request, make_response, abort
 from elasticsearch import Elasticsearch
 
-
-#if os.environ.get('ES_HOSTS'):
-#    ELASTICSEARCH_HOSTS = \
-#        [{'host': es_host, 'port': 9200}
-#         for es_host in os.environ.get('ES_HOSTS').split(",")]
-#else:
-#    ELASTICSEARCH_HOSTS = None
+from visimil.config import ELASTICSEARCH_HOSTS
 
 
 app = Flask(__name__)
-es = Elasticsearch([{'host': "127.0.0.1", 'port': 9200}])
+es = Elasticsearch(ELASTICSEARCH_HOSTS)
 
 
 @app.errorhandler(404)
@@ -135,20 +129,9 @@ def add_image():
     return jsonify({'result': result})
 
 
-@app.route('/health_check', methods=['GET'])
+@app.route('/ping', methods=['GET'])
 def elasticsearch_check():
-    app_health = \
-        {'app_health': {
-             'app_ok': False,
-             'reasons': {'elasticsearch_ok': False}}}
-
-    ELASTICSEARCH_HOSTS = False
-    if not ELASTICSEARCH_HOSTS:
-        return jsonify(app_health)
-    else:
-        app_health = app_health['app_health']['app_ok'] = True
-        app_health = app_health['app_health']['reasons']['elasticsearch_ok'] = True
-        return jsonify(app_health)
+    return jsonify({'ping': "PONG"})
 
 
 if __name__ == '__main__':
