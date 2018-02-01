@@ -20,7 +20,8 @@ from visimil.config import ELASTICSEARCH_HOSTS
 
 app = Flask(__name__)
 es = Elasticsearch(ELASTICSEARCH_HOSTS)
-
+model = VGG16(weights='imagenet', include_top=False, pooling='avg')
+model._make_predict_function()
 
 @app.errorhandler(404)
 def not_found(error):
@@ -32,7 +33,6 @@ def get_features(url):
     img = Image.open(BytesIO(response.content)).convert('RGB')
 
     target_size = (224, 224)
-    model = VGG16(weights='imagenet', include_top=False, pooling='avg')
 
     if img.size != target_size:
         img = img.resize(target_size)
@@ -41,6 +41,7 @@ def get_features(url):
     x = np.expand_dims(x, axis=0)
     x = preprocess_input(x)
     features = model.predict(x).flatten()
+
     return features.tolist()
 
 
@@ -65,11 +66,11 @@ def search():
 
     if 'accuracy' in request.json:
         acc = request.json['accuracy']
-        if acc > 2000.0:
-            acc = 2000.0
+        if acc > 900000.0:
+            acc = 900000.0
         if acc < 0.001:
             acc = 0.001
-    offset = 1.0/acc**2
+    offset = 2**-acc
     if 'threshold' in request.json:
         dim = request.json['threshold']
         if dim > 512:
@@ -86,22 +87,24 @@ def search():
             {'range': {field_name: {'gte': f-offset, 'lte': f+offset}}})
         features_as_fields.append({field_name: f})
     query = \
-        {'query':
-            {'bool':
-                {'minimum_number_should_match': dim,
-                 'should': fields}}}
+        {'query':{
+             'bool': {
+                'minimum_number_should_match': dim,
+                'should': fields
+              }
+            },
+          'size': 150
+         }
 
     result = es.search(index='visimil', doc_type='image', body=query)
 
     results = []
     for hit in result['hits']['hits']:
-
-        hit_f = \
-            np.asarray(
-                [list(v.values())[0] for v in sorted(
-                    [{attr: value} for attr, value in hit['_source'].items()],
-                key=lambda x:sorted(x.keys()))])
-
+        hit_f = np.asarray(
+            [v.values()[0] for v in sorted(
+                [{attr: value} for attr, value in hit['_source'].iteritems()],
+                key=lambda k: int(filter(lambda char: char.isdigit(), k.keys()[0]))
+                )])
         cs = cos_similarity(features, hit_f)
         results.append({'id': hit['_id'], 'score': hit['_score'], 'cs': cs})
 
