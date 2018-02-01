@@ -35,12 +35,13 @@ def get_features(url):
     target_size = (224, 224)
 
     if img.size != target_size:
-        img = img.resize(target_size)
+        img = img.resize(target_size, Image.LANCZOS)
 
     x = image.img_to_array(img)
     x = np.expand_dims(x, axis=0)
     x = preprocess_input(x)
     features = model.predict(x).flatten()
+    img.close()
 
     return features.tolist()
 
@@ -55,21 +56,20 @@ def search():
         abort(400)
 
     features = get_features(request.json['url'])
-    # np_features = np.asarray(features);
 
-    acc = 0.2
+    acc = 2
     dim = 100
     if 'template' in request.json:
         if 'almost_identical' == request.json['template']:
-            acc = 200
+            acc = 20
             dim = 500
 
     if 'accuracy' in request.json:
         acc = request.json['accuracy']
-        if acc > 900000.0:
-            acc = 900000.0
-        if acc < 0.001:
-            acc = 0.001
+        if acc > 20.0:
+            acc = 20.0
+        if acc < 0.01:
+            acc = 0.01
     offset = 2**-acc
     if 'threshold' in request.json:
         dim = request.json['threshold']
